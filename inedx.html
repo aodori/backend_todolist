@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TODO App</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+<body>
+    <div id="app">
+        <h1>TODO App</h1>
+        <input type="text" v-model="newTodo" placeholder="Enter new todo">
+        <button @click="addTodo">Add</button>
+        <ul>
+            <li v-for="todo in todos" :key="todo.id">{{ todo.title }}</li>
+        </ul>
+    </div>
+
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data: {
+                newTodo: '',
+                todos: []
+            },
+            methods: {
+                addTodo: function() {
+                    // POST request to your FastAPI backend to add new todo
+                    fetch('/todos/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            title: this.newTodo
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        this.todos.push(data);
+                        this.newTodo = '';
+                    })
+                    .catch(error => console.error('Error:', error));
+                }
+            },
+            mounted: function() {
+                // GET request to your FastAPI backend to fetch todos
+                fetch('/todos/')
+                .then(response => response.json())
+                .then(data => {
+                    this.todos = data;
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        });
+    </script>
+</body>
+</html>

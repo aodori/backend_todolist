@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo App - Fastapi</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+</head>
+<body>
+    <div style="margin-top: 50px;" class="ui container">
+        <h1 class="ui center aligned header">Fastapi ToDo App</h1>
+
+        <form class="ui form" action="/add" method="post">
+            <div class="field">
+                <label>Title</label>
+                <input type="text" name="title" placeholder="Enter task title...">
+            </div>
+            <div class="field">
+                <label>Deadline</label>
+                <input type="datetime-local" name="deadline">
+            </div>
+            <div class="field">
+                <label>Memo</label>
+                <input type="text" name="memo" placeholder="Enter memo...">
+            </div>
+            <button class="ui blue button" type="submit">Add Task</button>
+        </form>
+
+        <form class="ui form" action="/search" method="get">
+            <div class="field">
+                <label>Search Task</label>
+                <input type="text" name="title" placeholder="Enter task title...">
+            </div>
+            <button class="ui green button" type="submit">Search</button>
+        </form>
+
+        <hr>
+
+        {% for todo in todo_list %} 
+        <div class="ui segment">
+            <p class="ui big header">{{ todo.id }} | {{ todo.title }}</p>
+            <p class="ui sub header">Deadline: {{ todo.deadline }}</p>
+            <p>{{ todo.memo }}</p>
+            <div class="ui list">
+                <div class="item" style="margin-top: 10px;" id="steps{{ todo.id }}">
+                    <div class="content">
+                        <div class="header">Steps</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+    </div>
+    <script>
+        // JavaScriptで各タスクに関連する子タスク（steps）を表示する関数を定義
+        function showSteps(todoId, steps) {
+            const stepList = document.getElementById(`steps${todoId}`);
+            stepList.innerHTML = ''; // 子タスクリストをクリア
+            steps.forEach(step => {
+                const item = document.createElement('div');
+                item.className = 'item';
+                item.innerHTML = `<div class="content">${step.title}</div>`;
+                stepList.appendChild(item);
+            });
+        }
+
+        // JavaScriptで各タスクの子タスク（steps）を取得して表示する処理
+        {% for todo in todo_list %}
+        fetch(`/todos/{{ todo.id }}/steps/`)
+            .then(response => response.json())
+            .then(data => showSteps({{ todo.id }}, data))
+            .catch(error => console.error('Error fetching steps:', error));
+        {% endfor %}
+    </script>
+</body>
+</html>
