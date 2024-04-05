@@ -135,7 +135,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Dependency
+Dependency
 def get_db():
     db = SessionLocal()
     try:
